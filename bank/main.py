@@ -1,4 +1,4 @@
-
+# -*- coding: utf-8 -*-
 import sys
 import PyQt5.QtCore as QtCore
 from PyQt5.QtWidgets import QApplication, QStyleFactory
