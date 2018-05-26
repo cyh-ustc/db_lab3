@@ -18,6 +18,13 @@ searchIn = ['>', '>=', '=', '<=', '<', '<>']
 
 accountInfo = ['账户号', '类型', '支行号', '支行名', '身份证号', '姓名', '余额', '透支额度', '利率', '开户日期', '最近访问日期', '负责人身份证号', '负责人姓名', '币种']
 accountWidth = [80, 40, 60, 80, 140, 60, 80, 80, 80, 120, 120, 140, 80, 60]
+accountSearchOp = [['等于', '不等于', '包含'], ['大于', '大于等于', '等于', '小于等于', '小于', '不等于'], ['晚于', '不早于', '是', '不晚于', '早于', '不是'], ['等于']]
+accountSearchItem = [0, 3, 0, 0, 0, 0, 1, 1, 1, 2, 2, 0, 0, 3]
+accountZeroText = ['', '存款', '', '', '', '', '', '', '', '2000-01-01', '2000-01-01', '', '', '']
+accountCol = ['AccountID', 'AccType', 'BID', 'CID', 'Balance', 'Credit', 'IRate', 'CDate', 'Lvisit', 'EID', 'CNY']
+
+
+accountShowCol = ['AccountID', 'AccType', 'BID', 'BranchName', 'CID', 'CustomerName', 'Balance', 'Credit', 'IRate', 'CDate', 'Lvisit', 'EID', 'EmployeeName', 'CNY']
 
 
 branchInfo = ['支行号', '支行名', '城市', '资产']
@@ -74,7 +81,8 @@ class mainWindow(QMainWindow):
 # employee
 
 #account
-
+        self.accountSetText = [self.ui.accountIDLineEdit.setText, self.ui.accountTypeComboBox.setCurrentText, self.ui.accountBIDLineEdit.setText, self.ui.accountBNameLabel.setText, self.ui.accountCIDLineEdit.setText, self.ui.accountCNameLabel.setText, self.ui.accountBalanceLineEdit.setText, self.ui.accountCreditLineEdit.setText, self.ui.accountIRateLineEdit.setText, lambda s: self.ui.accountODateEdit.setDate(QDate().fromString(s, "yyyy-MM-dd")), lambda s: self.ui.accountLastDateEdit.setDate(QDate().fromString(s, "yyyy-MM-dd")), self.ui.accountEIDLineEdit.setText, self.ui.accountENameLabel.setText, self.ui.accountCNYLineEdit.setText]
+        self.accountEdits = [self.ui.accountIDLineEdit, self.ui.accountTypeComboBox, self.ui.accountBIDLineEdit, self.ui.accountCIDLineEdit, self.ui.accountBalanceLineEdit, self.ui.accountCreditLineEdit, self.ui.accountIRateLineEdit, self.ui.accountODateEdit, self.ui.accountLastDateEdit, self.ui.accountEIDLineEdit, self.ui.accountCNYLineEdit]
         self.accountSearchCondition = '1'
         self.showAccount();
         self.aState = State.notchosen
@@ -94,7 +102,15 @@ class mainWindow(QMainWindow):
 
     def connectSignals(self):
         #account
-
+        self.ui.accountSearchCheckBox.stateChanged.connect(self.accountSearchConditionChanged)
+        self.ui.accountSearchColComboBox.currentIndexChanged.connect(self.accountSearchConditionChanged)
+        self.ui.accountSearchPushButton.clicked.connect(self.showAccount)
+        self.ui.accountTableView.clicked.connect(self.chooseAccount)
+        self.ui.accountAlterPushButton.clicked.connect(self.editAccount)
+        self.ui.accountAbortPushButton.clicked.connect(self.abortAccount)
+        self.ui.accountAddPushButton.clicked.connect(self.addAccount)
+        self.ui.accountSavePushButton.clicked.connect(self.saveAccount)
+        self.ui.accountDeletePushButton.clicked.connect(self.deleteAccount)
         #account
 
         #branch
@@ -144,7 +160,25 @@ class mainWindow(QMainWindow):
 
 #account
     def showAccount(self):
-        self.dbcursor.execute('select * from accountview where %s;' % self.accountSearchCondition)
+        if self.ui.accountSearchRangeComboBox.currentIndex() == 0:
+            self.accountSearchCondition = '1'
+        if self.ui.accountSearchCheckBox.isChecked():
+            self.accountSearchCondition += ' and ' + accountShowCol[self.ui.accountSearchColComboBox.currentIndex()]
+            az = self.ui.accountSearchColComboBox.currentIndex()
+            iz = self.ui.accountSearchOpComboBox.currentIndex()
+            gz = accountSearchItem[az]
+            print(az,iz,gz)
+            if gz == 0:
+                self.accountSearchCondition += searchPre[iz] + self.ui.accountSearchLineEdit.text() + searchPost[iz]
+            elif gz == 1 or gz == 2:
+                self.accountSearchCondition += searchIn[iz] + '\'' + self.ui.accountSearchLineEdit.text() + '\''
+            elif gz == 3:
+                self.accountSearchCondition += '=' + '\'' + self.ui.accountSearchLineEdit.text() + '\''
+
+        s = 'select * from accountview where %s order by AccountID;' % self.accountSearchCondition
+
+        print(s)
+        self.dbcursor.execute(s)
         results = self.dbcursor.fetchall()
         self.accountModel = QStandardItemModel(self.ui.accountTableView)
         self.accountModel.setRowCount(len(results))
@@ -163,9 +197,121 @@ class mainWindow(QMainWindow):
             self.accountModel.item(i, 7).setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
             self.accountModel.item(i, 8).setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
 
+    def accountSearchConditionChanged(self):
+        if self.ui.accountSearchCheckBox.isChecked():
+            self.ui.accountSearchColComboBox.setEnabled(True)
+            self.ui.accountSearchOpComboBox.setEnabled(True)
+            self.ui.accountSearchLineEdit.setEnabled(True)
+        else:
+            self.ui.accountSearchColComboBox.setEnabled(False)
+            self.ui.accountSearchOpComboBox.setEnabled(False)
+            self.ui.accountSearchLineEdit.setEnabled(False)
+        idx = self.ui.accountSearchColComboBox.currentIndex()
+        self.ui.accountSearchOpComboBox.clear()
+        for i in accountSearchOp[accountSearchItem[idx]]:
+            self.ui.accountSearchOpComboBox.addItem(i)
+
+    def chooseAccount(self):
+        ix = self.ui.accountTableView.currentIndex()
+        if ix.row() != -1:
+            for i in range(14):
+                idx = self.accountModel.index(ix.row(), i)
+                self.accountSetText[i](self.accountModel.data(idx))
+            self.aState = State.chosen
+        else:
+            for i in range(14):
+                self.accountSetText[i](accountZeroText[i])
+
+            self.aState = State.notchosen
+        for i in range(11):
+            self.accountEdits[i].setEnabled(False)
+        self.ui.accountAddPushButton.setEnabled(True)
+        self.ui.accountAlterPushButton.setEnabled(True)
+        self.ui.accountDeletePushButton.setEnabled(True)
+        self.ui.accountTableView.setEnabled(True)
 
 
+    def editAccount(self):
+        if self.aState == State.chosen:
+            self.aState = State.edit
+            self.ui.accountTableView.setEnabled(False)
+            self.ui.accountAddPushButton.setEnabled(False)
+            self.ui.accountAlterPushButton.setEnabled(False)
+            self.ui.accountDeletePushButton.setEnabled(False)
+            for i in range(4):
+                self.accountEdits[i].setEnabled(False)
+            for i in range(4, 11):
+                self.accountEdits[i].setEnabled(True)
 
+    def abortAccount(self):
+        for i in range(11):
+            self.accountEdits[i].setEnabled(False)
+        self.chooseAccount()
+
+
+    def addAccount(self):
+        if self.aState == State.chosen or self.aState == State.notchosen:
+            self.aState = State.add
+
+            for i in range(14):
+                self.accountSetText[i](accountZeroText[i])
+            for i in range(11):
+                self.accountEdits[i].setEnabled(True)
+            self.ui.accountTableView.setEnabled(False)
+
+
+    def saveAccount(self):
+        if self.aState == State.edit:
+            try:
+                s = 'update Account set '
+                for i in range(4, 11):
+                    s += "%s = '%s', "%(accountCol[i], self.accountEdits[i].text())
+                s = s[:-2]
+                s += " where AccType = '%s' and BID = '%s' and CID = '%s';"%(self.accountEdits[1].currentText(), self.accountEdits[2].text(), self.accountEdits[3].text())
+                print(s)
+                self.dbcursor.execute(s)
+
+                self.db.commit()
+            except Exception as e:
+                self.db.rollback()
+                QMessageBox.critical(self, '错误', '修改发生了错误\r\n错误码：%d\r\n%s\r\n'%e.args + s)
+
+        elif self.aState == State.add:
+            try:
+                s = 'insert into Account values ('
+                s += "'%s', "%self.accountEdits[0].text()
+                s += "'%s', " % self.accountEdits[1].currentText()
+                for i in range(2, 11):
+                    s += "'%s', "%self.accountEdits[i].text()
+                s = s[:-2]
+                s += ");"
+                self.dbcursor.execute(s)
+                print(s)
+                self.db.commit()
+            except Exception as e:
+                self.db.rollback()
+                QMessageBox.critical(self, '错误', '新增发生了错误\r\n错误码：%d\r\n%s\r\n'%e.args + s)
+
+        self.showAccount()
+        self.chooseAccount()
+
+
+    def deleteAccount(self):
+        if self.aState == State.chosen:
+            aID = self.ui.accountIDLineEdit.text()
+            q = QMessageBox.question(self, '删除一条记录', '确认删除这条记录吗？\r\n账户号为%s'%aID, QMessageBox.Yes, QMessageBox.No)
+            if q == QMessageBox.Yes:
+                try:
+                    s = "delete from Account where AccType = '%s' and BID = '%s' and CID = '%s';"%(self.accountEdits[1].currentText(), self.accountEdits[2].text(), self.accountEdits[3].text())
+                    self.dbcursor.execute(s)
+                    self.db.commit()
+
+                except Exception as e:
+                    self.db.rollback()
+                    QMessageBox.critical(self, '错误', '删除发生了错误\r\n错误码：%d\r\n%s\r\n'%e.args + s)
+
+                self.showAccount()
+                self.chooseAccount()
 #account
 
 
@@ -280,6 +426,7 @@ class mainWindow(QMainWindow):
                 self.employeeEdits[i].setText('')
                 self.employeeEdits[i].setEnabled(True)
             self.ui.employeeSDateEdit.setEnabled(True)
+            self.ui.employeeTableView.setEnabled(False)
 
     def saveEmployee(self):
         if self.eState == State.edit:
@@ -479,6 +626,7 @@ class mainWindow(QMainWindow):
             self.ui.branchNameLineEdit.setEnabled(True)
             self.ui.branchCityLineEdit.setEnabled(True)
             self.ui.branchAsertLineEdit.setEnabled(True)
+            self.ui.branchTableView.setEnabled(False)
 
     def deleteBranch(self):
         if self.bState == State.chosen:
@@ -627,6 +775,7 @@ class mainWindow(QMainWindow):
             for i in range(8):
                 self.customerLineEdits[i].setText('')
                 self.customerLineEdits[i].setEnabled(True)
+            self.ui.customerTableView.setEnabled(False)
 
     def saveCustomer(self):
         if self.cState == State.edit:

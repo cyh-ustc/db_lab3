@@ -9,8 +9,8 @@ if __name__ == '__main__':
     app = QApplication(sys.argv)
     m = mainWindow()
     m.setFixedSize(m.size())
-    m.setWindowFlags(QtCore.Qt.WindowMinimizeButtonHint|QtCore.Qt.WindowCloseButtonHint)
-    app.setStyle(QStyleFactory.create("fusion"))
+    m.setWindowFlags(QtCore.Qt.WindowMinimizeButtonHint | QtCore.Qt.WindowCloseButtonHint)
+    app.setStyle(QStyleFactory.create('fusion'))
     m.show()
 
     app.exec()
