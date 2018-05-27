@@ -1,50 +1,15 @@
 # -*- coding: utf-8 -*-
 
 
-from PyQt5.QtWidgets import QMainWindow, QAbstractItemView, QMessageBox
+from PyQt5.QtWidgets import QMainWindow, QAbstractItemView, QMessageBox, QInputDialog, QLineEdit
 from PyQt5.QtGui import QStandardItemModel, QStandardItem
-from PyQt5.QtCore import Qt, QDate
-
+from PyQt5.QtCore import Qt, QDate, QCoreApplication
+from PyQt5.QtChart import QChartView, QChart, QLineSeries, QLegend, QCategoryAxis, QPieSeries
 
 from bank import Ui_MainWindow
 import pymysql
 
 from enum import Enum
-
-
-searchPre = [' = \'', ' <> \'', ' like \'%']
-searchPost = ['\'', '\'', '%\'']
-searchIn = ['>', '>=', '=', '<=', '<', '<>']
-
-accountInfo = ['账户号', '类型', '支行号', '支行名', '身份证号', '姓名', '余额', '透支额度', '利率', '开户日期', '最近访问日期', '负责人身份证号', '负责人姓名', '币种']
-accountWidth = [80, 40, 60, 80, 140, 60, 80, 80, 80, 120, 120, 140, 80, 60]
-accountSearchOp = [['等于', '不等于', '包含'], ['大于', '大于等于', '等于', '小于等于', '小于', '不等于'], ['晚于', '不早于', '是', '不晚于', '早于', '不是'], ['等于']]
-accountSearchItem = [0, 3, 0, 0, 0, 0, 1, 1, 1, 2, 2, 0, 0, 3]
-accountZeroText = ['', '存款', '', '', '', '', '', '', '', '2000-01-01', '2000-01-01', '', '', '']
-accountCol = ['AccountID', 'AccType', 'BID', 'CID', 'Balance', 'Credit', 'IRate', 'CDate', 'Lvisit', 'EID', 'CNY']
-
-
-accountShowCol = ['AccountID', 'AccType', 'BID', 'BranchName', 'CID', 'CustomerName', 'Balance', 'Credit', 'IRate', 'CDate', 'Lvisit', 'EID', 'EmployeeName', 'CNY']
-
-
-branchInfo = ['支行号', '支行名', '城市', '资产']
-branchWidth = [60, 80, 60, 120]
-
-
-employeeInfo = ['身份证号', '姓名', '电话', '地址', '开始工作日期']
-employeeWidth = [140, 60, 100, 60, 120]
-employeeCol = ['EmployeeID', 'EmployeeName', 'EmployeeTele', 'EmployeeAddress', 'StartWork']
-
-
-
-customerInfo = ['身份证号', '姓名', '电话', '地址', '联系人姓名', '联系人电话', '联系人电子邮件地址', '联系人与客户关系']
-customerCol = ['CustomerID', 'CustomerName', 'Tele', 'Address', 'ContactName', 'ContactTele', 'ContactEmail', 'Relationship']
-customerWidth = [140, 60, 100, 60, 60, 100, 160, 140]
-
-
-
-
-
 
 class State(Enum):
     notchosen = 0
@@ -52,55 +17,129 @@ class State(Enum):
     edit = 2
     add = 3
 
+searchPre = [' = \'', ' <> \'', ' like \'%']
+searchPost = ['\'', '\'', '%\'']
+searchIn = ['>', '>=', '=', '<=', '<', '<>']
+SearchOp = [['等于', '不等于', '包含'], ['大于', '大于等于', '等于', '小于等于', '小于', '不等于'], ['晚于', '不早于', '是', '不晚于', '早于', '不是'], ['等于']]
+
+accountInfo = ['账户号', '类型', '支行号', '支行名', '身份证号', '姓名', '余额', '透支额度', '利率', '开户日期', '最近访问日期', '负责人身份证号', '负责人姓名', '币种']
+accountWidth = [80, 40, 60, 80, 140, 60, 80, 80, 80, 120, 120, 140, 80, 60]
+
+accountSearchItem = [0, 3, 0, 0, 0, 0, 1, 1, 1, 2, 2, 0, 0, 3]
+accountZeroText = ['', '存款', '', '', '', '', '', '', '', '2000-01-01', '2000-01-01', '', '', '']
+accountCol = ['AccountID', 'AccType', 'BID', 'CID', 'Balance', 'Credit', 'IRate', 'CDate', 'Lvisit', 'EID', 'CNY']
+accountShowCol = ['AccountID', 'AccType', 'BID', 'BranchName', 'CID', 'CustomerName', 'Balance', 'Credit', 'IRate', 'CDate', 'Lvisit', 'EID', 'EmployeeName', 'CNY']
+
+loanInfo = ['贷款号','姓名','身份证号','总金额','支行名','支行号','负责员工','员工号','状态']
+loanShowCol = ['LoanID', 'CustomerName', 'CID', 'SOM', 'BranchName', 'BID', 'EmployeeName', 'EID', 'State']
+loanSearchItem = [0, 0, 0, 1, 0, 0, 0, 0, 0]
+loanWidth = [55, 45, 140, 60, 60, 60, 60, 140, 100]
+loanOutWidth = [80, 80]
+
+branchInfo = ['支行号', '支行名', '城市', '资产']
+branchWidth = [60, 80, 60, 120]
+
+employeeInfo = ['身份证号', '姓名', '电话', '地址', '开始工作日期']
+employeeWidth = [140, 60, 100, 60, 120]
+employeeCol = ['EmployeeID', 'EmployeeName', 'EmployeeTele', 'EmployeeAddress', 'StartWork']
+
+customerInfo = ['身份证号', '姓名', '电话', '地址', '联系人姓名', '联系人电话', '联系人电子邮件地址', '联系人与客户关系']
+customerCol = ['CustomerID', 'CustomerName', 'Tele', 'Address', 'ContactName', 'ContactTele', 'ContactEmail', 'Relationship']
+customerWidth = [140, 60, 100, 60, 60, 100, 160, 140]
 
 
-
+statSQL = \
+[
+    [
+        "select BID, year(CDate) as Yea, sum(Balance), count(AccountID) from Account where CDate >= '%s' and CDate < '%s' group by BID, Yea;",
+        "select BID, floor(month(CDate)/4) + 1 as Sea, sum(Balance), count(AccountID) from Account where CDate >= '%s' and CDate < '%s' group by BID, Sea;",
+        "select BID, month(CDate) as Mon, sum(Balance), count(AccountID) from Account where CDate >= '%s' and CDate < '%s' group by BID, Mon;"
+    ],
+    [
+        "select Loan.BID, year(LoanOut.ODate) as Yea, sum(LoanOut.SOM), count(Loan.LoanID) from LoanOut, Loan where LoanOut.ODate >= '%s' and LoanOut.ODate < '%s' and Loan.LoanID = LoanOut.LID group by Loan.BID, Yea;",
+        "select Loan.BID, floor(month(LoanOut.ODate)/4) + 1 as Sea, sum(LoanOut.SOM), count(Loan.LoanID) from LoanOut, Loan where LoanOut.ODate >= '%s' and LoanOut.ODate < '%s' and Loan.LoanID = LoanOut.LID group by Loan.BID, Sea;",
+        "select Loan.BID, month(LoanOut.ODate) as Mon, sum(LoanOut.SOM), count(Loan.LoanID) from LoanOut, Loan where LoanOut.ODate >= '%s' and LoanOut.ODate < '%s' and Loan.LoanID = LoanOut.LID group by Loan.BID, Mon;"
+    ]
+]
+statInfo = \
+[
+    [
+        ['支行号', '年份', '总发生额', '新增用户数'], ['支行号', '季度', '总发生额', '新增用户数'], ['支行号', '月份', '总发生额', '新增用户数']
+    ],
+    [
+        ['支行号', '年份', '总发生额', '业务数'], ['支行号', '季度', '总发生额', '业务数'], ['支行号', '月份', '总发生额', '业务数']
+    ]
+]
+statWidth = [50, 60, 70, 80]
 
 class mainWindow(QMainWindow):
-    def __init__(self):
-        super().__init__()
+    def init(self):
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
-        self.connectDB()
+        #self.connectDB()
         self.connectSignals()
-
-
-
-#branch
+        # branch
         self.branchSearchCondition = '1'
         self.showBranchs()
         self.bState = State.notchosen
         self.ui.branchTableView.setEditTriggers(QAbstractItemView.NoEditTriggers)
-#branch
+        # branch
 
-# employee
+        # employee
         self.showEmployee()
         self.eState = State.notchosen
-        self.employeeEdits = [self.ui.employeeIDLineEdit, self.ui.employeeNameLineEdit, self.ui.employeeTeleLineEdit, self.ui.employeeAddressLineEdit, self.ui.employeeSDateEdit]
+        self.employeeEdits = [self.ui.employeeIDLineEdit, self.ui.employeeNameLineEdit, self.ui.employeeTeleLineEdit,
+                              self.ui.employeeAddressLineEdit, self.ui.employeeSDateEdit]
         self.ui.employeeTableView.setEditTriggers(QAbstractItemView.NoEditTriggers)
-# employee
+        # employee
 
-#account
-        self.accountSetText = [self.ui.accountIDLineEdit.setText, self.ui.accountTypeComboBox.setCurrentText, self.ui.accountBIDLineEdit.setText, self.ui.accountBNameLabel.setText, self.ui.accountCIDLineEdit.setText, self.ui.accountCNameLabel.setText, self.ui.accountBalanceLineEdit.setText, self.ui.accountCreditLineEdit.setText, self.ui.accountIRateLineEdit.setText, lambda s: self.ui.accountODateEdit.setDate(QDate().fromString(s, "yyyy-MM-dd")), lambda s: self.ui.accountLastDateEdit.setDate(QDate().fromString(s, "yyyy-MM-dd")), self.ui.accountEIDLineEdit.setText, self.ui.accountENameLabel.setText, self.ui.accountCNYLineEdit.setText]
-        self.accountEdits = [self.ui.accountIDLineEdit, self.ui.accountTypeComboBox, self.ui.accountBIDLineEdit, self.ui.accountCIDLineEdit, self.ui.accountBalanceLineEdit, self.ui.accountCreditLineEdit, self.ui.accountIRateLineEdit, self.ui.accountODateEdit, self.ui.accountLastDateEdit, self.ui.accountEIDLineEdit, self.ui.accountCNYLineEdit]
+        # account
+        self.accountSetText = [self.ui.accountIDLineEdit.setText, self.ui.accountTypeComboBox.setCurrentText,
+                               self.ui.accountBIDLineEdit.setText, self.ui.accountBNameLabel.setText,
+                               self.ui.accountCIDLineEdit.setText, self.ui.accountCNameLabel.setText,
+                               self.ui.accountBalanceLineEdit.setText, self.ui.accountCreditLineEdit.setText,
+                               self.ui.accountIRateLineEdit.setText,
+                               lambda s: self.ui.accountODateEdit.setDate(QDate().fromString(s, "yyyy-MM-dd")),
+                               lambda s: self.ui.accountLastDateEdit.setDate(QDate().fromString(s, "yyyy-MM-dd")),
+                               self.ui.accountEIDLineEdit.setText, self.ui.accountENameLabel.setText,
+                               self.ui.accountCNYLineEdit.setText]
+        self.accountEdits = [self.ui.accountIDLineEdit, self.ui.accountTypeComboBox, self.ui.accountBIDLineEdit,
+                             self.ui.accountCIDLineEdit, self.ui.accountBalanceLineEdit, self.ui.accountCreditLineEdit,
+                             self.ui.accountIRateLineEdit, self.ui.accountODateEdit, self.ui.accountLastDateEdit,
+                             self.ui.accountEIDLineEdit, self.ui.accountCNYLineEdit]
         self.accountSearchCondition = '1'
-        self.showAccount();
+        self.showAccount()
         self.aState = State.notchosen
 
-#account
+        # account
 
+        # loan
+        self.lState = State.notchosen
+        self.showLoan()
+        self.loanLineEdits = [self.ui.loanIDLineEdit, self.ui.loanNameLabel, self.ui.loanCIDlineEdit,
+                              self.ui.loanSOMLineEdit, self.ui.loanBNameLabel, self.ui.loanBIDLineEdit,
+                              self.ui.loanENameLabel, self.ui.loadEIDLineEdit, self.ui.loanStateLabel]
 
-#customer
+        # loan
+
+        # customer
         self.cState = State.notchosen
         self.showCustomers()
-        self.customerLineEdits = [self.ui.customerIDLineEdit, self.ui.customerNameLineEdit, self.ui.customerTeleLineEdit, self.ui.customerAddressLineEdit, self.ui.contactNameLineEdit, self.ui.contactTeleLineEdit, self.ui.contactEmailLineEdit, self.ui.contactRelationshipLineEdit]
+        self.customerLineEdits = [self.ui.customerIDLineEdit, self.ui.customerNameLineEdit,
+                                  self.ui.customerTeleLineEdit, self.ui.customerAddressLineEdit,
+                                  self.ui.contactNameLineEdit, self.ui.contactTeleLineEdit,
+                                  self.ui.contactEmailLineEdit, self.ui.contactRelationshipLineEdit]
         self.ui.customerTableView.setEditTriggers(QAbstractItemView.NoEditTriggers)
-#customer
 
-
+    # customer
+    #def __init__(self):
+        #super().__init__()
 
 
     def connectSignals(self):
+        #stat
+        self.ui.statViewPushButton.clicked.connect(self.getStat)
+        #stat
         #account
         self.ui.accountSearchCheckBox.stateChanged.connect(self.accountSearchConditionChanged)
         self.ui.accountSearchColComboBox.currentIndexChanged.connect(self.accountSearchConditionChanged)
@@ -112,7 +151,17 @@ class mainWindow(QMainWindow):
         self.ui.accountSavePushButton.clicked.connect(self.saveAccount)
         self.ui.accountDeletePushButton.clicked.connect(self.deleteAccount)
         #account
-
+        #loan
+        self.ui.loantSearchCheckBox.stateChanged.connect(self.loanSearchConditionChanged)
+        self.ui.loanSearchColComboBox.currentIndexChanged.connect(self.loanSearchConditionChanged)
+        self.ui.loanSearchPushButton.clicked.connect(self.showLoan)
+        self.ui.loanTableView.clicked.connect(self.chooseLoan)
+        self.ui.loanAddPushButton.clicked.connect(self.addLoan)
+        self.ui.loanAbortPushButton.clicked.connect(self.abortLoan)
+        self.ui.loanSavePushButton.clicked.connect(self.saveLoan)
+        self.ui.loanDeletePushButton.clicked.connect(self.deleteLoan)
+        self.ui.loanOutPushButton.clicked.connect(self.GiveoutLoan)
+        #loan
         #branch
         self.ui.branchTableView.clicked.connect(self.chooseBranch)
         self.ui.editBranchPushButton.clicked.connect(self.editBranch)
@@ -155,9 +204,243 @@ class mainWindow(QMainWindow):
         #customer
 
     def connectDB(self):
-        self.db = pymysql.connect('localhost', 'root', '135565', 'bank')
-        self.dbcursor = self.db.cursor()
+        password = QInputDialog.getText(self, '登陆系统', '请输入登陆密码', QLineEdit.Password)
+        try:
+            self.db = pymysql.connect('localhost', 'root', password[0], 'bank')
+            self.dbcursor = self.db.cursor()
+        except Exception as e:
+            return QMessageBox.question(self, '失败', '登陆失败\r\n错误码：%d\r\n%s'%e.args, QMessageBox.Abort, QMessageBox.Retry)
 
+#stat
+    def getStat(self):
+        sv = self.ui.statTypeComboBox.currentIndex()
+        sc = self.ui.statScaleComboBox.currentIndex()
+        s = statSQL[sv][sc] % (self.ui.statSDateEdit.text(), self.ui.statFDateEdit.text())
+        print(s)
+
+        self.dbcursor.execute(s)
+        results = self.dbcursor.fetchall()
+        self.statModel = QStandardItemModel(self.ui.statTableView)
+        self.statModel.setRowCount(len(results))
+        self.statModel.setColumnCount(4)
+
+        for i in range(4):
+            self.statModel.setHeaderData(i, Qt.Horizontal, statInfo[sv][sc][i])
+        self.ui.statTableView.setModel(self.statModel)
+        for i in range(4):
+            self.ui.statTableView.setColumnWidth(i, statWidth[i])
+        for i in range(len(results)):
+            for j in range(4):
+                self.statModel.setItem(i, j, QStandardItem(str(results[i][j])))
+        for i in range(len(results)):
+            self.statModel.item(i, 3).setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
+            self.statModel.item(i, 2).setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
+        bd = dict()
+        dc = dict()
+        for i in results:
+            if i[0] in bd:
+                bd[i[0]].append(i[1:4])
+            else:
+                bd[i[0]] = [i[1:4]]
+            if i[0] in dc:
+                dc[i[0]] += i[2]
+            else:
+                dc[i[0]] = i[2]
+        print(dc)
+        print(bd)
+        c = QChart()
+        c.setTitle("各支行%s发生金额按%s统计图"%(self.ui.statTypeComboBox.currentText(), self.ui.statScaleComboBox.currentText()))
+        #c.legend().hide()
+        for i in bd:
+            l = QLineSeries()
+            l.setName(i)
+            for j in bd[i]:
+                l.append(j[0], j[1])
+            c.addSeries(l)
+        c.createDefaultAxes()
+        v = QChartView(c, self)
+        w = QMainWindow(self)
+        w.setCentralWidget(v)
+        w.resize(640, 320)
+        w.setWindowTitle("统计图")
+        #w.setWindowModality(2)
+        w.show()
+        l = QPieSeries()
+        for i in dc:
+            l.append(i, dc[i])
+
+        d = QChart()
+        d.addSeries(l)
+        d.setTitle("各支行%s发生总金额占比统计图"%self.ui.statTypeComboBox.currentText())
+        z = QChartView(d, self)
+        x = QMainWindow(self)
+        x.setCentralWidget(z)
+        x.setWindowTitle("统计图")
+        x.resize(640, 640)
+        #x.setWindowModality(2)
+        x.show()
+
+
+
+
+#stat
+
+#loan
+    def showLoan(self):
+        self.loanSearchCondition = '1'
+        if self.ui.loantSearchCheckBox.isChecked():
+            self.loanSearchCondition +=  ' and ' +  loanShowCol[self.ui.loanSearchColComboBox.currentIndex()]
+            az = self.ui.loanSearchColComboBox.currentIndex()
+            iz = self.ui.loanSearchOpComboBox.currentIndex()
+            gz = loanSearchItem[az]
+            if gz == 0:
+                self.loanSearchCondition += searchPre[iz] + self.ui.loanSearchLineEdit.text() + searchPost[iz]
+            elif gz == 1 or gz == 2:
+                self.loanSearchCondition += searchIn[iz] + '\'' + self.ui.loanSearchLineEdit.text() + '\''
+            elif gz == 3:
+                self.loanSearchCondition += '=' + '\'' + self.ui.loanSearchLineEdit.text() + '\''
+
+        s = 'select * from loanview where %s;' % self.loanSearchCondition
+        print(s)
+        self.dbcursor.execute(s)
+        results = self.dbcursor.fetchall()
+        self.loanModel = QStandardItemModel(self.ui.loanTableView)
+        self.loanModel.setRowCount(len(results))
+        self.loanModel.setColumnCount(9)
+
+        for i in range(9):
+            self.loanModel.setHeaderData(i, Qt.Horizontal, loanInfo[i])
+        self.ui.loanTableView.setModel(self.loanModel)
+        for i in range(9):
+            self.ui.loanTableView.setColumnWidth(i, loanWidth[i])
+        for i in range(len(results)):
+            for j in range(9):
+                self.loanModel.setItem(i, j, QStandardItem(str(results[i][j])))
+        for i in range(len(results)):
+            self.loanModel.item(i, 3).setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
+
+    def loanSearchConditionChanged(self):
+        if self.ui.loantSearchCheckBox.isChecked():
+            self.ui.loanSearchColComboBox.setEnabled(True)
+            self.ui.loanSearchOpComboBox.setEnabled(True)
+            self.ui.loanSearchLineEdit.setEnabled(True)
+        else:
+            self.ui.loanSearchColComboBox.setEnabled(False)
+            self.ui.loanSearchOpComboBox.setEnabled(False)
+            self.ui.loanSearchLineEdit.setEnabled(False)
+        idx = self.ui.loanSearchColComboBox.currentIndex()
+        self.ui.loanSearchOpComboBox.clear()
+        for i in SearchOp[loanSearchItem[idx]]:
+            self.ui.loanSearchOpComboBox.addItem(i)
+
+    def chooseLoan(self):
+        ix = self.ui.loanTableView.currentIndex()
+        if ix.row() != -1:
+            for i in range(9):
+                idx = self.loanModel.index(ix.row(), i)
+                self.loanLineEdits[i].setText(self.loanModel.data(idx))
+            self.lState = State.chosen
+            self.showLoanOut()
+
+        else:
+            for i in range(9):
+                self.loanLineEdits[i].setText('')
+                self.loanLineEdits[i].setEnabled(False)
+            self.lState = State.notchosen
+            self.ui.loanOutPushButton.setEnabled(False)
+            self.ui.loanOutTableView.setModel(QStandardItemModel(self.ui.loanOutTableView.model()))
+        self.ui.loanTableView.setEnabled(True)
+        self.ui.loanAddPushButton.setEnabled(True)
+        self.ui.loanDeletePushButton.setEnabled(True)
+
+    def showLoanOut(self):
+        s = "select * from LoanOut where LID = '%s' order by Odate" % self.ui.loanIDLineEdit.text()
+        self.dbcursor.execute(s)
+        results = self.dbcursor.fetchall()
+        loanOutModel = QStandardItemModel(self.ui.loanOutTableView)
+        loanOutModel.setRowCount(len(results))
+        loanOutModel.setColumnCount(2)
+
+        loanOutModel.setHeaderData(0, Qt.Horizontal, '金额')
+        loanOutModel.setHeaderData(1, Qt.Horizontal, '时间')
+        for i in range(len(results)):
+            for j in range(1, 3):
+                loanOutModel.setItem(i, j - 1, QStandardItem(str(results[i][j])))
+
+        self.ui.loanOutTableView.setModel(loanOutModel)
+        for i in range(2):
+            self.ui.loanOutTableView.setColumnWidth(i, loanOutWidth[i])
+        self.ui.loanOutPushButton.setEnabled(True)
+
+    def addLoan(self):
+        if self.lState == State.chosen or self.lState == State.notchosen:
+            self.lState = State.add
+            for i in range(9):
+                self.loanLineEdits[i].setText('')
+                self.loanLineEdits[i].setEnabled(True)
+            self.ui.loanTableView.setEnabled(False)
+
+    def abortLoan(self):
+        for i in range(9):
+            self.loanLineEdits[i].setEnabled(False)
+        self.chooseLoan()
+
+    def saveLoan(self):
+        if self.lState == State.add:
+            try:
+                s = 'insert into Loan values ('
+                for i in [0, 2, 5, 7, 3]:
+                    s += "'%s', "%self.loanLineEdits[i].text()
+                s = s[:-2]
+                s += ");"
+                self.dbcursor.execute(s)
+                print(s)
+                self.db.commit()
+                self.showLoan()
+                self.chooseLoan()
+
+            except Exception as e:
+                self.db.rollback()
+                QMessageBox.critical(self, '错误', '新增发生了错误\r\n错误码：%d\r\n%s\r\n'%e.args + s)
+
+    def deleteLoan(self):
+        if self.lState == State.chosen:
+            lID = self.ui.loanIDLineEdit.text()
+            q = QMessageBox.question(self, '删除一条记录', '确认删除这条记录吗？\r\n账户号为%s'%lID, QMessageBox.Yes, QMessageBox.No)
+            if q == QMessageBox.Yes:
+                try:
+                    s = "delete from Loan where LoanID = '%s';"%lID
+                    print(s)
+                    self.dbcursor.execute(s)
+                    self.db.commit()
+
+
+                except Exception as e:
+                    self.db.rollback()
+                    QMessageBox.critical(self, '错误', '删除发生了错误\r\n错误码：%d\r\n%s\r\n'%e.args + s)
+                self.showLoan()
+                self.chooseLoan()
+
+
+    def GiveoutLoan(self):
+        if self.lState == State.chosen:
+            lID = self.ui.loanIDLineEdit.text()
+            som = self.ui.loanSpinBox.value()
+            day = self.ui.loanOutDateEdit.text()
+            q = QMessageBox.question(self, '发放一笔贷款', '确认发放这笔贷款吗？\r\n贷款号为%s\r\n金额：%d\r\n日期：%s' % (lID, som, day), QMessageBox.Yes, QMessageBox.No)
+            if q == QMessageBox.Yes:
+                try:
+                    s = "insert into LoanOut values ('%s', '%d', '%s')"%(lID, som, day)
+                    print(s)
+                    self.dbcursor.execute(s)
+                    self.db.commit()
+                except Exception as e:
+                    self.db.rollback()
+                    QMessageBox.critical(self, '错误', '发放贷款发生了错误\r\n错误码：%d\r\n%s\r\n' % e.args + s)
+            self.showLoan()
+            self.chooseLoan()
+
+#loan
 #account
     def showAccount(self):
         if self.ui.accountSearchRangeComboBox.currentIndex() == 0:
@@ -174,9 +457,7 @@ class mainWindow(QMainWindow):
                 self.accountSearchCondition += searchIn[iz] + '\'' + self.ui.accountSearchLineEdit.text() + '\''
             elif gz == 3:
                 self.accountSearchCondition += '=' + '\'' + self.ui.accountSearchLineEdit.text() + '\''
-
         s = 'select * from accountview where %s order by AccountID;' % self.accountSearchCondition
-
         print(s)
         self.dbcursor.execute(s)
         results = self.dbcursor.fetchall()
@@ -187,7 +468,6 @@ class mainWindow(QMainWindow):
             self.accountModel.setHeaderData(i, Qt.Horizontal, accountInfo[i])
         self.ui.accountTableView.setModel(self.accountModel)
         for i in range(14):
-            w = self.ui.accountTableView.width()
             self.ui.accountTableView.setColumnWidth(i, accountWidth[i])
         for i in range(len(results)):
             for j in range(14):
@@ -208,7 +488,7 @@ class mainWindow(QMainWindow):
             self.ui.accountSearchLineEdit.setEnabled(False)
         idx = self.ui.accountSearchColComboBox.currentIndex()
         self.ui.accountSearchOpComboBox.clear()
-        for i in accountSearchOp[accountSearchItem[idx]]:
+        for i in SearchOp[accountSearchItem[idx]]:
             self.ui.accountSearchOpComboBox.addItem(i)
 
     def chooseAccount(self):
@@ -230,7 +510,6 @@ class mainWindow(QMainWindow):
         self.ui.accountDeletePushButton.setEnabled(True)
         self.ui.accountTableView.setEnabled(True)
 
-
     def editAccount(self):
         if self.aState == State.chosen:
             self.aState = State.edit
@@ -248,7 +527,6 @@ class mainWindow(QMainWindow):
             self.accountEdits[i].setEnabled(False)
         self.chooseAccount()
 
-
     def addAccount(self):
         if self.aState == State.chosen or self.aState == State.notchosen:
             self.aState = State.add
@@ -258,7 +536,6 @@ class mainWindow(QMainWindow):
             for i in range(11):
                 self.accountEdits[i].setEnabled(True)
             self.ui.accountTableView.setEnabled(False)
-
 
     def saveAccount(self):
         if self.aState == State.edit:
@@ -295,14 +572,13 @@ class mainWindow(QMainWindow):
         self.showAccount()
         self.chooseAccount()
 
-
     def deleteAccount(self):
         if self.aState == State.chosen:
             aID = self.ui.accountIDLineEdit.text()
             q = QMessageBox.question(self, '删除一条记录', '确认删除这条记录吗？\r\n账户号为%s'%aID, QMessageBox.Yes, QMessageBox.No)
             if q == QMessageBox.Yes:
                 try:
-                    s = "delete from Account where AccType = '%s' and BID = '%s' and CID = '%s';"%(self.accountEdits[1].currentText(), self.accountEdits[2].text(), self.accountEdits[3].text())
+                    s = "delete from Account where AccountID = '%s';"%aID
                     self.dbcursor.execute(s)
                     self.db.commit()
 
@@ -344,12 +620,10 @@ class mainWindow(QMainWindow):
             self.employeeModel.setHeaderData(i, Qt.Horizontal, employeeInfo[i])
         self.ui.employeeTableView.setModel(self.employeeModel)
         for i in range(5):
-            w = self.ui.employeeTableView.width()
             self.ui.employeeTableView.setColumnWidth(i,  employeeWidth[i])
         for i in range(len(results)):
             for j in range(5):
                 self.employeeModel.setItem(i, j, QStandardItem(str(results[i][j])))
-
 
     def employeeSearchConditionChanged(self):
         if self.ui.employeeSearchIDCheckBox.isChecked():
@@ -416,7 +690,6 @@ class mainWindow(QMainWindow):
         for i in range(5):
             self.employeeEdits[i].setEnabled(False)
         self.chooseEmployee()
-
 
     def addEmployee(self):
         if self.eState == State.chosen or self.eState == State.notchosen:
@@ -509,7 +782,6 @@ class mainWindow(QMainWindow):
             self.ui.branchSearchBranchNameComboBox.setEnabled(False)
             self.ui.branchSearchBranchNameLineEdit.setEnabled(False)
 
-
     def updateBranchSearchCondition(self):
         if self.ui.branchSearchRangeComboBox.currentIndex() == 0:
             self.branchSearchCondition = '1'
@@ -530,7 +802,6 @@ class mainWindow(QMainWindow):
         print(self.branchSearchCondition)
         self.showBranchs()
 
-
     def showBranchs(self):
         self.dbcursor.execute('select * from Branch where %s;'%self.branchSearchCondition)
         results = self.dbcursor.fetchall()
@@ -542,15 +813,12 @@ class mainWindow(QMainWindow):
             self.branchModel.setHeaderData(i, Qt.Horizontal, branchInfo[i])
         self.ui.branchTableView.setModel(self.branchModel)
         for i in range(4):
-            w = self.ui.branchTableView.width()
             self.ui.branchTableView.setColumnWidth(i, branchWidth[i])
         for i in range(len(results)):
             for j in range(4):
                 self.branchModel.setItem(i, j, QStandardItem(str(results[i][j])))
         for i in range(len(results)):
             self.branchModel.item(i, 3).setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
-
-
 
     def chooseBranch(self):
         i = self.ui.branchTableView.currentIndex()
@@ -647,7 +915,6 @@ class mainWindow(QMainWindow):
                 self.showBranchs()
                 self.chooseBranch()
 
-
     def saveBranch(self):
         if self.bState == State.edit:
             if not self.ui.branchAsertLineEdit.text():
@@ -702,7 +969,6 @@ class mainWindow(QMainWindow):
             self.ui.customerSearchOtherInfoComboBox.setEnabled(False)
             self.ui.customerSearchOtherInfoLineEdit.setEnabled(False)
 
-
     def showCustomers(self):
         cd = '1'
         if self.ui.customerSearchCustomerIDCheckBox.isChecked():
@@ -726,13 +992,10 @@ class mainWindow(QMainWindow):
             self.customerModel.setHeaderData(i, Qt.Horizontal, customerInfo[i])
         self.ui.customerTableView.setModel(self.customerModel)
         for i in range(8):
-            w = self.ui.customerTableView.width()
             self.ui.customerTableView.setColumnWidth(i, customerWidth[i])
         for i in range(len(results)):
             for j in range(8):
                 self.customerModel.setItem(i, j, QStandardItem(str(results[i][j])))
-
-
 
     def chooseCustomer(self):
         ix = self.ui.customerTableView.currentIndex()
@@ -766,7 +1029,6 @@ class mainWindow(QMainWindow):
         for i in range(0, 8):
             self.customerLineEdits[i].setEnabled(False)
         self.chooseCustomer()
-
 
     def addCustomer(self):
         if self.cState == State.chosen or self.cState == State.notchosen:

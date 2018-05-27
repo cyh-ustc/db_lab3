@@ -27,7 +27,7 @@
      </rect>
     </property>
     <property name="currentIndex">
-     <number>4</number>
+     <number>0</number>
     </property>
     <widget class="QWidget" name="tab">
      <attribute name="title">
@@ -2230,7 +2230,7 @@
        </rect>
       </property>
      </widget>
-     <widget class="QGroupBox" name="accountSearchGroupBox_2">
+     <widget class="QGroupBox" name="loanSearchGroupBox">
       <property name="geometry">
        <rect>
         <x>10</x>
@@ -2242,11 +2242,11 @@
       <property name="title">
        <string>查找</string>
       </property>
-      <widget class="QPushButton" name="accountSearchPushButton_2">
+      <widget class="QPushButton" name="loanSearchPushButton">
        <property name="geometry">
         <rect>
          <x>550</x>
-         <y>50</y>
+         <y>70</y>
          <width>101</width>
          <height>31</height>
         </rect>
@@ -2255,44 +2255,11 @@
         <string>查找</string>
        </property>
       </widget>
-      <widget class="QLabel" name="accountSearchRangeLabel_2">
-       <property name="geometry">
-        <rect>
-         <x>30</x>
-         <y>30</y>
-         <width>36</width>
-         <height>12</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string>范围：</string>
-       </property>
-      </widget>
-      <widget class="QComboBox" name="accountSearchRangeComboBox_2">
-       <property name="geometry">
-        <rect>
-         <x>90</x>
-         <y>30</y>
-         <width>111</width>
-         <height>22</height>
-        </rect>
-       </property>
-       <item>
-        <property name="text">
-         <string>全部</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>上一次结果</string>
-        </property>
-       </item>
-      </widget>
-      <widget class="QCheckBox" name="accountSearchCheckBox_2">
+      <widget class="QCheckBox" name="loantSearchCheckBox">
        <property name="geometry">
         <rect>
          <x>20</x>
-         <y>80</y>
+         <y>40</y>
          <width>59</width>
          <height>16</height>
         </rect>
@@ -2301,14 +2268,14 @@
         <string>字段：</string>
        </property>
       </widget>
-      <widget class="QComboBox" name="accountSearchOpComboBox_2">
+      <widget class="QComboBox" name="loanSearchOpComboBox">
        <property name="enabled">
         <bool>false</bool>
        </property>
        <property name="geometry">
         <rect>
          <x>210</x>
-         <y>80</y>
+         <y>40</y>
          <width>91</width>
          <height>22</height>
         </rect>
@@ -2329,54 +2296,34 @@
         </property>
        </item>
       </widget>
-      <widget class="QLineEdit" name="accountSearchLineEdit_2">
+      <widget class="QLineEdit" name="loanSearchLineEdit">
        <property name="enabled">
         <bool>false</bool>
        </property>
        <property name="geometry">
         <rect>
          <x>320</x>
-         <y>80</y>
+         <y>40</y>
          <width>211</width>
          <height>20</height>
         </rect>
        </property>
       </widget>
-      <widget class="QComboBox" name="accountSearchColComboBox_2">
+      <widget class="QComboBox" name="loanSearchColComboBox">
        <property name="enabled">
         <bool>false</bool>
        </property>
        <property name="geometry">
         <rect>
          <x>100</x>
-         <y>80</y>
+         <y>40</y>
          <width>91</width>
          <height>22</height>
         </rect>
        </property>
        <item>
         <property name="text">
-         <string>账户号</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>账户类型</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>支行号</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>支行名</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>身份证号</string>
+         <string>贷款号</string>
         </property>
        </item>
        <item>
@@ -2386,57 +2333,39 @@
        </item>
        <item>
         <property name="text">
-         <string>余额</string>
+         <string>身份证号</string>
         </property>
        </item>
        <item>
         <property name="text">
-         <string>额度</string>
+         <string>总金额</string>
         </property>
        </item>
        <item>
         <property name="text">
-         <string>利率</string>
+         <string>支行名</string>
         </property>
        </item>
        <item>
         <property name="text">
-         <string>开户日期</string>
+         <string>支行号</string>
         </property>
        </item>
        <item>
         <property name="text">
-         <string>最近访问日期</string>
+         <string>负责员工</string>
         </property>
        </item>
        <item>
         <property name="text">
-         <string>负责人工号</string>
+         <string>员工号</string>
         </property>
        </item>
        <item>
         <property name="text">
-         <string>负责人姓名</string>
+         <string>状态</string>
         </property>
        </item>
-       <item>
-        <property name="text">
-         <string>币种</string>
-        </property>
-       </item>
-      </widget>
-      <widget class="QLabel" name="label_2">
-       <property name="geometry">
-        <rect>
-         <x>360</x>
-         <y>100</y>
-         <width>120</width>
-         <height>12</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string>日期格式：yyyy-MM-dd</string>
-       </property>
       </widget>
      </widget>
      <widget class="QGroupBox" name="groupBox">
@@ -2451,7 +2380,7 @@
       <property name="title">
        <string>管理</string>
       </property>
-      <widget class="QPushButton" name="accountDeletePushButton_2">
+      <widget class="QPushButton" name="loanDeletePushButton">
        <property name="geometry">
         <rect>
          <x>130</x>
@@ -2464,7 +2393,7 @@
         <string>删除</string>
        </property>
       </widget>
-      <widget class="QPushButton" name="accountAddPushButton_2">
+      <widget class="QPushButton" name="loanAddPushButton">
        <property name="geometry">
         <rect>
          <x>40</x>
@@ -2477,7 +2406,7 @@
         <string>添加</string>
        </property>
       </widget>
-      <widget class="QPushButton" name="accountSavePushButton_2">
+      <widget class="QPushButton" name="loanSavePushButton">
        <property name="geometry">
         <rect>
          <x>130</x>
@@ -2490,7 +2419,7 @@
         <string>保存</string>
        </property>
       </widget>
-      <widget class="QPushButton" name="accountAbortPushButton_2">
+      <widget class="QPushButton" name="loanAbortPushButton">
        <property name="geometry">
         <rect>
          <x>30</x>
@@ -2503,17 +2432,17 @@
         <string>放弃</string>
        </property>
       </widget>
-      <widget class="QTableView" name="loanTableView_2">
+      <widget class="QTableView" name="loanOutTableView">
        <property name="geometry">
         <rect>
          <x>20</x>
          <y>270</y>
          <width>201</width>
-         <height>191</height>
+         <height>151</height>
         </rect>
        </property>
       </widget>
-      <widget class="QLabel" name="label_3">
+      <widget class="QLabel" name="loanLabel">
        <property name="geometry">
         <rect>
          <x>20</x>
@@ -2526,7 +2455,7 @@
         <string>贷款号：</string>
        </property>
       </widget>
-      <widget class="QLabel" name="label_4">
+      <widget class="QLabel" name="loanLabel_2">
        <property name="geometry">
         <rect>
          <x>20</x>
@@ -2539,7 +2468,7 @@
         <string>姓名：</string>
        </property>
       </widget>
-      <widget class="QLabel" name="label_5">
+      <widget class="QLabel" name="loanLabel_3">
        <property name="geometry">
         <rect>
          <x>20</x>
@@ -2552,7 +2481,7 @@
         <string>身份证号：</string>
        </property>
       </widget>
-      <widget class="QLabel" name="label_6">
+      <widget class="QLabel" name="loanLabel_5">
        <property name="geometry">
         <rect>
          <x>20</x>
@@ -2565,7 +2494,7 @@
         <string>支行名：</string>
        </property>
       </widget>
-      <widget class="QLabel" name="label_7">
+      <widget class="QLabel" name="loanLabel_6">
        <property name="geometry">
         <rect>
          <x>20</x>
@@ -2578,7 +2507,7 @@
         <string>支行号：</string>
        </property>
       </widget>
-      <widget class="QLabel" name="label_8">
+      <widget class="QLabel" name="loanLabel_7">
        <property name="geometry">
         <rect>
          <x>20</x>
@@ -2591,7 +2520,7 @@
         <string>负责员工：</string>
        </property>
       </widget>
-      <widget class="QLabel" name="label_9">
+      <widget class="QLabel" name="loanLabel_8">
        <property name="geometry">
         <rect>
          <x>20</x>
@@ -2604,7 +2533,7 @@
         <string>员工身份证号：</string>
        </property>
       </widget>
-      <widget class="QLabel" name="label_10">
+      <widget class="QLabel" name="loanLabel_9">
        <property name="geometry">
         <rect>
          <x>20</x>
@@ -2617,7 +2546,7 @@
         <string>状态：</string>
        </property>
       </widget>
-      <widget class="QLabel" name="label_11">
+      <widget class="QLabel" name="loanLabel_10">
        <property name="geometry">
         <rect>
          <x>20</x>
@@ -2630,7 +2559,7 @@
         <string>发放情况：</string>
        </property>
       </widget>
-      <widget class="QLabel" name="label_12">
+      <widget class="QLabel" name="loanLabel_4">
        <property name="geometry">
         <rect>
          <x>20</x>
@@ -2643,11 +2572,11 @@
         <string>总金额：</string>
        </property>
       </widget>
-      <widget class="QLabel" name="label_13">
+      <widget class="QLabel" name="loanLabel_13">
        <property name="geometry">
         <rect>
          <x>20</x>
-         <y>470</y>
+         <y>430</y>
          <width>60</width>
          <height>12</height>
         </rect>
@@ -2656,15 +2585,15 @@
         <string>发放贷款：</string>
        </property>
       </widget>
-      <widget class="QSpinBox" name="spinBox">
+      <widget class="QSpinBox" name="loanSpinBox">
        <property name="enabled">
         <bool>true</bool>
        </property>
        <property name="geometry">
         <rect>
          <x>20</x>
-         <y>490</y>
-         <width>101</width>
+         <y>460</y>
+         <width>91</width>
          <height>22</height>
         </rect>
        </property>
@@ -2674,14 +2603,17 @@
        <property name="maximum">
         <number>2147483647</number>
        </property>
+       <property name="singleStep">
+        <number>1000</number>
+       </property>
       </widget>
-      <widget class="QPushButton" name="pushButton">
+      <widget class="QPushButton" name="loanOutPushButton">
        <property name="enabled">
         <bool>false</bool>
        </property>
        <property name="geometry">
         <rect>
-         <x>140</x>
+         <x>130</x>
          <y>490</y>
          <width>75</width>
          <height>23</height>
@@ -2691,7 +2623,7 @@
         <string>发放</string>
        </property>
       </widget>
-      <widget class="QLineEdit" name="lineEdit">
+      <widget class="QLineEdit" name="loanIDLineEdit">
        <property name="enabled">
         <bool>false</bool>
        </property>
@@ -2704,7 +2636,7 @@
         </rect>
        </property>
       </widget>
-      <widget class="QLineEdit" name="lineEdit_2">
+      <widget class="QLineEdit" name="loanCIDlineEdit">
        <property name="enabled">
         <bool>false</bool>
        </property>
@@ -2717,7 +2649,7 @@
         </rect>
        </property>
       </widget>
-      <widget class="QLineEdit" name="lineEdit_3">
+      <widget class="QLineEdit" name="loanSOMLineEdit">
        <property name="enabled">
         <bool>false</bool>
        </property>
@@ -2730,7 +2662,7 @@
         </rect>
        </property>
       </widget>
-      <widget class="QLineEdit" name="lineEdit_4">
+      <widget class="QLineEdit" name="loanBIDLineEdit">
        <property name="enabled">
         <bool>false</bool>
        </property>
@@ -2743,7 +2675,7 @@
         </rect>
        </property>
       </widget>
-      <widget class="QLineEdit" name="lineEdit_5">
+      <widget class="QLineEdit" name="loadEIDLineEdit">
        <property name="enabled">
         <bool>false</bool>
        </property>
@@ -2756,12 +2688,265 @@
         </rect>
        </property>
       </widget>
+      <widget class="QLabel" name="loanNameLabel">
+       <property name="geometry">
+        <rect>
+         <x>100</x>
+         <y>85</y>
+         <width>220</width>
+         <height>12</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+      </widget>
+      <widget class="QLabel" name="loanBNameLabel">
+       <property name="geometry">
+        <rect>
+         <x>100</x>
+         <y>155</y>
+         <width>220</width>
+         <height>12</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+      </widget>
+      <widget class="QLabel" name="loanStateLabel">
+       <property name="geometry">
+        <rect>
+         <x>100</x>
+         <y>235</y>
+         <width>220</width>
+         <height>12</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+      </widget>
+      <widget class="QLabel" name="loanENameLabel">
+       <property name="geometry">
+        <rect>
+         <x>100</x>
+         <y>195</y>
+         <width>220</width>
+         <height>12</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+      </widget>
+      <widget class="QDateEdit" name="loanOutDateEdit">
+       <property name="enabled">
+        <bool>true</bool>
+       </property>
+       <property name="geometry">
+        <rect>
+         <x>120</x>
+         <y>460</y>
+         <width>91</width>
+         <height>22</height>
+        </rect>
+       </property>
+       <property name="displayFormat">
+        <string>yyyy-MM-dd</string>
+       </property>
+      </widget>
      </widget>
     </widget>
     <widget class="QWidget" name="tab_6">
      <attribute name="title">
       <string>业务统计</string>
      </attribute>
+     <widget class="QGroupBox" name="statSettingGroupBox">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>10</y>
+        <width>251</width>
+        <height>251</height>
+       </rect>
+      </property>
+      <property name="title">
+       <string>统计设定</string>
+      </property>
+      <widget class="QComboBox" name="statTypeComboBox">
+       <property name="geometry">
+        <rect>
+         <x>130</x>
+         <y>20</y>
+         <width>91</width>
+         <height>22</height>
+        </rect>
+       </property>
+       <item>
+        <property name="text">
+         <string>储蓄</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>贷款</string>
+        </property>
+       </item>
+      </widget>
+      <widget class="QLabel" name="statLabel">
+       <property name="geometry">
+        <rect>
+         <x>30</x>
+         <y>25</y>
+         <width>60</width>
+         <height>12</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>业务类型：</string>
+       </property>
+      </widget>
+      <widget class="QComboBox" name="statScaleComboBox">
+       <property name="geometry">
+        <rect>
+         <x>130</x>
+         <y>55</y>
+         <width>91</width>
+         <height>22</height>
+        </rect>
+       </property>
+       <item>
+        <property name="text">
+         <string>年</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>季度</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>月</string>
+        </property>
+       </item>
+      </widget>
+      <widget class="QLabel" name="statLabel_2">
+       <property name="geometry">
+        <rect>
+         <x>30</x>
+         <y>60</y>
+         <width>60</width>
+         <height>12</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>时间尺度：</string>
+       </property>
+      </widget>
+      <widget class="QDateEdit" name="statSDateEdit">
+       <property name="geometry">
+        <rect>
+         <x>130</x>
+         <y>90</y>
+         <width>91</width>
+         <height>22</height>
+        </rect>
+       </property>
+       <property name="displayFormat">
+        <string>yyyy-MM-dd</string>
+       </property>
+      </widget>
+      <widget class="QDateEdit" name="statFDateEdit">
+       <property name="geometry">
+        <rect>
+         <x>130</x>
+         <y>130</y>
+         <width>91</width>
+         <height>22</height>
+        </rect>
+       </property>
+       <property name="displayFormat">
+        <string>yyyy-MM-dd</string>
+       </property>
+      </widget>
+      <widget class="QLabel" name="statLabel_3">
+       <property name="geometry">
+        <rect>
+         <x>30</x>
+         <y>95</y>
+         <width>60</width>
+         <height>12</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>起始时间：</string>
+       </property>
+      </widget>
+      <widget class="QLabel" name="statLabel_4">
+       <property name="geometry">
+        <rect>
+         <x>30</x>
+         <y>135</y>
+         <width>60</width>
+         <height>12</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>中止时间：</string>
+       </property>
+      </widget>
+      <widget class="QPushButton" name="statViewPushButton">
+       <property name="geometry">
+        <rect>
+         <x>140</x>
+         <y>200</y>
+         <width>81</width>
+         <height>31</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>查看</string>
+       </property>
+      </widget>
+      <widget class="QLabel" name="statLabel_5">
+       <property name="geometry">
+        <rect>
+         <x>150</x>
+         <y>155</y>
+         <width>60</width>
+         <height>12</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>（不包含）</string>
+       </property>
+      </widget>
+     </widget>
+     <widget class="QGroupBox" name="statTableGroupBox">
+      <property name="geometry">
+       <rect>
+        <x>280</x>
+        <y>10</y>
+        <width>641</width>
+        <height>561</height>
+       </rect>
+      </property>
+      <property name="title">
+       <string>数据统计表</string>
+      </property>
+      <widget class="QTableView" name="statTableView">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>20</y>
+         <width>621</width>
+         <height>531</height>
+        </rect>
+       </property>
+      </widget>
+     </widget>
     </widget>
    </widget>
   </widget>
